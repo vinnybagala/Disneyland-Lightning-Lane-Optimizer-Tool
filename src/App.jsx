@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useCallback } from "react";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -228,7 +227,29 @@ function buildTrendSummary(history, yesterday) {
 export default function App() {
   const [tab, setTab]               = useState("waits");
   const [tripDay, setTripDay] = useState(() => { try { return parseInt(localStorage.getItem("ll_tripday")||"1"); } catch { return 1; } });
-  const [favorites, setFavorites] = useState(() => { try { const s = localStorage.getItem("ll_favorites"); return s ? JSON.parse(s) : []; } catch { return []; } });
+  const DEFAULT_FAVORITES = [
+  { name: "Incredicoaster",                              park: "DCA" },
+  { name: "Space Mountain",                              park: "DL"  },
+  { name: "Rise of the Resistance",                      park: "DL"  },
+  { name: "Radiator Springs Racers",                     park: "DCA" },
+  { name: "Guardians of the Galaxy – Mission: BREAKOUT!", park: "DCA" },
+  { name: "Big Thunder Mountain Railroad",               park: "DL"  },
+  { name: "Goofy's Sky School",                          park: "DCA" },
+  { name: "Indiana Jones Adventure",                     park: "DL"  },
+  { name: "Tiana's Bayou Adventure",                     park: "DL"  },
+  { name: "Grizzly River Run",                           park: "DCA" },
+  { name: "Matterhorn Bobsleds",                         park: "DL"  },
+  { name: "Toy Story Midway Mania!",                     park: "DCA" },
+  { name: "Millennium Falcon: Smugglers Run",            park: "DL"  },
+  { name: "WEB SLINGERS: A Spider-Man Adventure",        park: "DCA" },
+  { name: "Mickey & Minnie's Runaway Railway",           park: "DL"  },
+  { name: "Soarin' Around the World",                    park: "DCA" },
+  { name: "Haunted Mansion",                             park: "DL"  },
+  { name: "Jungle Cruise",                               park: "DL"  },
+  { name: "Monsters Inc. Mike & Sulley",                 park: "DCA" },
+  { name: "The Little Mermaid",                          park: "DCA" },
+];
+const [favorites, setFavorites] = useState(() => { try { const s = localStorage.getItem("ll_favorites"); return s ? JSON.parse(s) : DEFAULT_FAVORITES; } catch { return DEFAULT_FAVORITES; } });
   const [dragIdx, setDragIdx]       = useState(null);
   const [activePark, setActivePark] = useState("DL");
   const [waitsDL, setWaitsDL]       = useState(null);
