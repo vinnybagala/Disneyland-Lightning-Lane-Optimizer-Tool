@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef, useCallback } from "react";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -226,8 +227,8 @@ function buildTrendSummary(history, yesterday) {
 // ─── Main App ─────────────────────────────────────────────────────────────────
 export default function App() {
   const [tab, setTab]               = useState("waits");
-  const [tripDay, setTripDay]       = useState(1);
-  const [favorites, setFavorites]   = useState([]);
+  const [tripDay, setTripDay] = useState(() => { try { return parseInt(localStorage.getItem("ll_tripday")||"1"); } catch { return 1; } });
+  const [favorites, setFavorites] = useState(() => { try { const s = localStorage.getItem("ll_favorites"); return s ? JSON.parse(s) : []; } catch { return []; } });
   const [dragIdx, setDragIdx]       = useState(null);
   const [activePark, setActivePark] = useState("DL");
   const [waitsDL, setWaitsDL]       = useState(null);
@@ -342,6 +343,10 @@ export default function App() {
   }, [nextPoll]);
 
   useEffect(() => () => { if (pollTimer.current) clearInterval(pollTimer.current); }, []);
+  // ── Persist favorites + tripDay ─────────────────────────────────────────────
+  useEffect(() => { try { localStorage.setItem("ll_favorites", JSON.stringify(favorites)); } catch {} }, [favorites]);
+  useEffect(() => { try { localStorage.setItem("ll_tripday", String(tripDay)); } catch {} }, [tripDay]);
+
 
   // ── Favorites ────────────────────────────────────────────────────────────────
   const favNames = new Set(favorites.map(f => f.name));
