@@ -101,6 +101,114 @@ const TIER_COLOR  = { tier1:"#f87171", tier2:"#fb923c", tier3:"#4ade80", nonLL_A
 const TIER_LABEL  = { tier1:"T1·LL", tier2:"T2·LL", tier3:"T3·LL", nonLL_A:"No LL·A", nonLL_B:"No LL·B" };
 const WAIT_COLOR  = (w) => w <= 20 ? "#4ade80" : w <= 40 ? "#facc15" : w <= 60 ? "#fb923c" : "#f87171";
 
+const RIDE_HISTORY = {
+  "Indiana Jones Adventure": {
+    park:"DL", tier:"tier1",
+    hourly: {8:20,9:25,10:40,11:60,12:75,13:85,14:90,15:95,16:90,17:80,18:70,19:60,20:50,21:40},
+    peak:"1:00pm-3:00pm", walkBefore:"9:30am", tip:"Book LL first. If standby under 25min before 9:30am walk on and save LL."
+  },
+  "Space Mountain": {
+    park:"DL", tier:"tier1",
+    hourly: {8:15,9:20,10:35,11:55,12:70,13:80,14:85,15:85,16:80,17:70,18:60,19:50,20:40,21:30},
+    peak:"1:00pm-3:00pm", walkBefore:"9:30am", tip:"Book LL first. Walkable at rope drop, spikes fast by 11am."
+  },
+  "Mickey & Minnie's Runaway Railway": {
+    park:"DL", tier:"tier1",
+    hourly: {8:30,9:40,10:55,11:65,12:70,13:75,14:75,15:70,16:65,17:60,18:55,19:50,20:45,21:35},
+    peak:"12:00pm-3:00pm", walkBefore:"Never — always use LL", tip:"Book LL immediately on scan-in. Rarely walkable."
+  },
+  "Matterhorn Bobsleds": {
+    park:"DL", tier:"tier2",
+    hourly: {8:15,9:20,10:35,11:45,12:55,13:65,14:70,15:70,16:65,17:55,18:45,19:40,20:35,21:25},
+    peak:"1:00pm-4:00pm", walkBefore:"9:30am", tip:"Walk on at rope drop. Book LL if over 35min."
+  },
+  "Big Thunder Mountain Railroad": {
+    park:"DL", tier:"tier2",
+    hourly: {8:10,9:15,10:25,11:35,12:45,13:50,14:55,15:55,16:50,17:45,18:40,19:35,20:30,21:20},
+    peak:"1:00pm-4:00pm", walkBefore:"10:00am", tip:"Great morning standby ride. Save LL for afternoon."
+  },
+  "Tiana's Bayou Adventure": {
+    park:"DL", tier:"tier2",
+    hourly: {8:20,9:30,10:45,11:55,12:65,13:75,14:80,15:75,16:70,17:60,18:50,19:45,20:35,21:25},
+    peak:"1:00pm-4:00pm", walkBefore:"9:30am", tip:"Book LL by 10am. Sells out afternoon."
+  },
+  "Haunted Mansion": {
+    park:"DL", tier:"tier2",
+    hourly: {8:10,9:15,10:25,11:35,12:45,13:50,14:55,15:50,16:45,17:40,18:35,19:30,20:25,21:20},
+    peak:"12:00pm-3:00pm", walkBefore:"10:00am", tip:"Walk on morning. Use LL only if over 40min."
+  },
+  "Millennium Falcon: Smugglers Run": {
+    park:"DL", tier:"tier3",
+    hourly: {8:15,9:20,10:30,11:40,12:45,13:50,14:50,15:45,16:40,17:35,18:30,19:25,20:20,21:15},
+    peak:"12:00pm-3:00pm", walkBefore:"10:00am", tip:"Tier 3 — rarely urgent. Book LL later in day."
+  },
+  "Star Tours": {
+    park:"DL", tier:"tier3",
+    hourly: {8:10,9:15,10:20,11:25,12:30,13:35,14:35,15:30,16:25,17:20,18:15,19:15,20:10,21:10},
+    peak:"12:00pm-2:00pm", walkBefore:"Anytime", tip:"Low demand all day. Good filler between LL windows."
+  },
+  "Rise of the Resistance": {
+    park:"DL", tier:"nonLL_A",
+    hourly: {8:45,9:60,10:70,11:75,12:80,13:85,14:80,15:75,16:70,17:65,18:55,19:50,20:40,21:30},
+    peak:"12:00pm-3:00pm", walkBefore:"8:00am only", tip:"Single Pass or rope drop ONLY. Lines form before park opens."
+  },
+  "Jungle Cruise": {
+    park:"DL", tier:"nonLL_B",
+    hourly: {8:10,9:15,10:25,11:35,12:45,13:50,14:50,15:45,16:40,17:35,18:30,19:25,20:20,21:15},
+    peak:"12:00pm-3:00pm", walkBefore:"10:00am", tip:"No LL available. Ride before 10am or skip midday."
+  },
+  "Guardians of the Galaxy – Mission: BREAKOUT!": {
+    park:"DCA", tier:"tier1",
+    hourly: {8:25,9:35,10:50,11:65,12:75,13:85,14:90,15:90,16:85,17:75,18:65,19:55,20:45,21:35},
+    peak:"1:00pm-4:00pm", walkBefore:"9:30am", tip:"Book LL FIRST in DCA. Peaks hard in afternoon."
+  },
+  "Toy Story Midway Mania!": {
+    park:"DCA", tier:"tier1",
+    hourly: {8:20,9:30,10:45,11:60,12:70,13:75,14:75,15:70,16:65,17:55,18:50,19:40,20:35,21:25},
+    peak:"12:00pm-3:00pm", walkBefore:"9:30am", tip:"Book LL second in DCA immediately after Guardians."
+  },
+  "Soarin' Around the World": {
+    park:"DCA", tier:"tier2",
+    hourly: {8:15,9:20,10:35,11:45,12:55,13:60,14:65,15:60,16:55,17:50,18:40,19:35,20:25,21:20},
+    peak:"12:00pm-3:00pm", walkBefore:"9:30am", tip:"Walk on early, book LL if over 30min."
+  },
+  "Goofy's Sky School": {
+    park:"DCA", tier:"tier2",
+    hourly: {8:10,9:15,10:25,11:35,12:40,13:45,14:45,15:40,16:35,17:30,18:25,19:20,20:15,21:10},
+    peak:"12:00pm-3:00pm", walkBefore:"10:00am", tip:"Lower demand. Good standby in morning."
+  },
+  "Incredicoaster": {
+    park:"DCA", tier:"tier2",
+    hourly: {8:15,9:25,10:35,11:50,12:60,13:65,14:65,15:60,16:55,17:45,18:40,19:35,20:25,21:20},
+    peak:"12:00pm-3:00pm", walkBefore:"9:30am", tip:"Walk on early morning. Book LL by 11am."
+  },
+  "WEB SLINGERS: A Spider-Man Adventure": {
+    park:"DCA", tier:"tier3",
+    hourly: {8:10,9:15,10:25,11:35,12:40,13:45,14:45,15:40,16:35,17:30,18:25,19:20,20:15,21:10},
+    peak:"12:00pm-2:00pm", walkBefore:"Anytime", tip:"Tier 3 — available most of day. Good filler."
+  },
+  "The Little Mermaid": {
+    park:"DCA", tier:"tier3",
+    hourly: {8:5,9:10,10:15,11:20,12:25,13:25,14:25,15:20,16:20,17:15,18:15,19:10,20:10,21:5},
+    peak:"12:00pm-2:00pm", walkBefore:"Anytime", tip:"Almost always walkable. Use as filler anytime."
+  },
+  "Monsters Inc. Mike & Sulley": {
+    park:"DCA", tier:"tier3",
+    hourly: {8:5,9:10,10:15,11:20,12:25,13:30,14:30,15:25,16:20,17:20,18:15,19:10,20:10,21:5},
+    peak:"12:00pm-2:00pm", walkBefore:"Anytime", tip:"Low demand all day. Good filler."
+  },
+  "Grizzly River Run": {
+    park:"DCA", tier:"tier3",
+    hourly: {8:10,9:15,10:25,11:35,12:45,13:55,14:60,15:60,16:55,17:50,18:40,19:30,20:20,21:10},
+    peak:"1:00pm-4:00pm", walkBefore:"10:00am", tip:"Spikes in afternoon heat. Ride morning or use LL."
+  },
+  "Radiator Springs Racers": {
+    park:"DCA", tier:"nonLL_A",
+    hourly: {8:45,9:70,10:90,11:100,12:110,13:115,14:110,15:105,16:95,17:85,18:70,19:60,20:45,21:30},
+    peak:"11:00am-3:00pm", walkBefore:"8:00am ONLY", tip:"HIGHEST demand in DCA. Single Pass or rope drop. Lines form before park opens. Do NOT attempt standby after 9am."
+  },
+};
+
 const getRideMeta = (name) => {
   for (const park of ["DL","DCA"])
     for (const tier of ["tier1","tier2","tier3","nonLL_A","nonLL_B"]) {
@@ -642,91 +750,80 @@ CLOSED: Pirates of the Caribbean, Buzz Lightyear — never recommend.`;
         {tab==="data" && (
           <div>
             <div style={{ background:"rgba(250,204,21,0.04)", border:"1px solid rgba(250,204,21,0.1)", borderRadius:8, padding:"9px 12px", marginBottom:11, fontSize:11, color:"#a16207", lineHeight:1.5 }}>
-              📈 Wait time history collected today — one row per hour, one column per priority ride. Updates every 5 min while tracking.
+              📊 Historical wait time patterns from <strong style={{ color:"#facc15" }}>Thrill Data</strong> — typical June patterns for each of your priority rides. Use this as your morning briefing.
             </div>
-            {Object.keys(history).length === 0 ? (
-              <div style={{ padding:32, textAlign:"center", color:"#334155", fontSize:12 }}>No data collected yet — tap ▶ START TRACKING on the Waits tab</div>
-            ) : (() => {
-              // Build hourly averages from history
-              const hourlyData = {};
-              for (const [rideName, snaps] of Object.entries(history)) {
-                if (!favorites.find(f => f.name === rideName)) continue;
-                for (const snap of snaps) {
-                  const hour = new Date(snap.time).getHours();
-                  const key = hour;
-                  if (!hourlyData[key]) hourlyData[key] = {};
-                  if (!hourlyData[key][rideName]) hourlyData[key][rideName] = [];
-                  hourlyData[key][rideName].push(snap.wait);
-                }
-              }
-              const hours = Object.keys(hourlyData).map(Number).sort((a,b)=>a-b);
-              const rideNames = favorites.map(f => f.name).filter(n => Object.values(hourlyData).some(h => h[n]));
-              if (hours.length === 0) return <div style={{ padding:32, textAlign:"center", color:"#334155", fontSize:12 }}>Collecting data... check back in a few minutes</div>;
+
+            {/* Park filter */}
+            <div style={{ display:"flex", gap:7, marginBottom:11 }}>
+              {["ALL","DL","DCA"].map(p => (
+                <button key={p} onClick={()=>setActivePark(p==="ALL"?"ALL":p)}
+                  style={{ flex:1, padding:"7px 0", border:`1px solid ${activePark===p||(!["DL","DCA"].includes(activePark)&&p==="ALL")?"rgba(250,204,21,0.3)":"rgba(255,255,255,0.07)"}`, borderRadius:7, cursor:"pointer", fontFamily:"'DM Sans',sans-serif", fontWeight:700, fontSize:11, background:activePark===p||(!["DL","DCA"].includes(activePark)&&p==="ALL")?"rgba(250,204,21,0.1)":"transparent", color:activePark===p||(!["DL","DCA"].includes(activePark)&&p==="ALL")?"#facc15":"#475569" }}>
+                  {p==="ALL"?"Both Parks":p==="DL"?"🏰 Disneyland":"🎡 Cal Adventure"}
+                </button>
+              ))}
+            </div>
+
+            {favorites.filter(f => activePark==="ALL"||!["DL","DCA"].includes(activePark)||f.park===activePark).map(fav => {
+              const rd = RIDE_HISTORY[fav.name];
+              if (!rd) return null;
+              const hours = Object.keys(rd.hourly).map(Number).sort((a,b)=>a-b);
+              const waits = hours.map(h => rd.hourly[h]);
+              const peak = Math.max(...waits);
+              const min = Math.min(...waits);
+              const liveW = [...(waitsDL||[]),...(waitsDCA||[])].find(w=>w.name===fav.name);
+              const meta = getRideMeta(fav.name);
               return (
-                <div>
-                  {/* Summary cards for each priority ride */}
-                  {rideNames.map(rideName => {
-                    const meta = getRideMeta(rideName);
-                    const allSnaps = history[rideName] || [];
-                    if (allSnaps.length < 2) return null;
-                    const waits = allSnaps.map(s => s.wait);
-                    const current = waits[waits.length-1];
-                    const peak = Math.max(...waits);
-                    const peakSnap = allSnaps[waits.indexOf(peak)];
-                    const peakHour = new Date(peakSnap.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-                    const min = Math.min(...waits);
-                    const avg = Math.round(waits.reduce((a,b)=>a+b,0)/waits.length);
-                    const rHist = waits;
-                    const walkable = waits.filter(w => w <= 30).length;
-                    const walkPct = Math.round(walkable/waits.length*100);
-                    return (
-                      <div key={rideName} style={{ background:"#0e1628", borderRadius:9, border:"1px solid rgba(255,255,255,0.05)", marginBottom:9, overflow:"hidden" }}>
-                        <div style={{ padding:"8px 12px", borderBottom:"1px solid rgba(255,255,255,0.05)", display:"flex", alignItems:"center", gap:7 }}>
-                          <div style={{ flex:1 }}>
-                            <div style={{ fontSize:12, fontWeight:700, color:"#dde4f0" }}>{rideName}</div>
-                            {meta && <span style={{ fontSize:8, padding:"1px 5px", borderRadius:8, background:`${TIER_COLOR[meta.tier]}20`, color:TIER_COLOR[meta.tier], fontWeight:700 }}>{TIER_LABEL[meta.tier]}</span>}
-                          </div>
-                          <span style={{ fontSize:13, fontWeight:700, color:WAIT_COLOR(current) }}>{current}m now</span>
-                        </div>
-                        <div style={{ padding:"8px 12px" }}>
-                          <div style={{ display:"flex", gap:8, marginBottom:8 }}>
-                            {[["Peak",`${peak}m @ ${peakHour}`,"#f87171"],["Low",`${min}m`,"#4ade80"],["Avg",`${avg}m`,"#facc15"],["Walkable",`${walkPct}%`,"#60a5fa"]].map(([label,val,c])=>(
-                              <div key={label} style={{ flex:1, background:"rgba(255,255,255,0.03)", borderRadius:6, padding:"5px 7px", textAlign:"center" }}>
-                                <div style={{ fontSize:8, color:"#475569", marginBottom:2 }}>{label}</div>
-                                <div style={{ fontSize:11, fontWeight:700, color:c }}>{val}</div>
-                              </div>
-                            ))}
-                          </div>
-                          {/* Full sparkline */}
-                          <div style={{ background:"rgba(255,255,255,0.02)", borderRadius:6, padding:"8px 10px" }}>
-                            <Sparkline data={rHist} color={WAIT_COLOR(current)} width={320} height={40}/>
-                          </div>
-                          {/* Hourly breakdown */}
-                          <div style={{ display:"flex", gap:4, marginTop:7, flexWrap:"wrap" }}>
-                            {hours.map(hr => {
-                              const vals = hourlyData[hr]?.[rideName];
-                              if (!vals) return null;
-                              const avg = Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
-                              const label = hr >= 12 ? `${hr===12?12:hr-12}pm` : `${hr===0?12:hr}am`;
-                              return (
-                                <div key={hr} style={{ background:`${WAIT_COLOR(avg)}15`, border:`1px solid ${WAIT_COLOR(avg)}40`, borderRadius:5, padding:"3px 7px", textAlign:"center" }}>
-                                  <div style={{ fontSize:8, color:"#475569" }}>{label}</div>
-                                  <div style={{ fontSize:11, fontWeight:700, color:WAIT_COLOR(avg) }}>{avg}m</div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
+                <div key={fav.name} style={{ background:"#0e1628", borderRadius:9, border:"1px solid rgba(255,255,255,0.05)", marginBottom:10, overflow:"hidden" }}>
+                  {/* Header */}
+                  <div style={{ padding:"8px 12px", borderBottom:"1px solid rgba(255,255,255,0.05)", display:"flex", alignItems:"center", gap:7 }}>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:12, fontWeight:700, color:"#dde4f0" }}>{fav.name}</div>
+                      <div style={{ display:"flex", gap:6, marginTop:3, alignItems:"center" }}>
+                        {meta && <span style={{ fontSize:8, padding:"1px 5px", borderRadius:8, background:`${TIER_COLOR[meta.tier]}20`, color:TIER_COLOR[meta.tier], fontWeight:700 }}>{TIER_LABEL[meta.tier]}</span>}
+                        <span style={{ fontSize:9, color:"#475569" }}>Peak: {rd.peak}</span>
+                        <span style={{ fontSize:9, color:"#4ade80" }}>Walk on: {rd.walkBefore}</span>
                       </div>
-                    );
-                  })}
+                    </div>
+                    {liveW && <div style={{ textAlign:"right" }}>
+                      <div style={{ fontSize:9, color:"#475569" }}>LIVE NOW</div>
+                      <div style={{ fontSize:14, fontWeight:700, color:WAIT_COLOR(liveW.wait) }}>{liveW.wait}m</div>
+                    </div>}
+                  </div>
+
+                  {/* Stat row */}
+                  <div style={{ display:"flex", gap:6, padding:"7px 12px", borderBottom:"1px solid rgba(255,255,255,0.04)" }}>
+                    {[["Peak",`${peak}min`,"#f87171"],["Low",`${min}min`,"#4ade80"],["Walk Before",rd.walkBefore,"#facc15"]].map(([label,val,c])=>(
+                      <div key={label} style={{ flex:1, background:"rgba(255,255,255,0.03)", borderRadius:6, padding:"5px 6px", textAlign:"center" }}>
+                        <div style={{ fontSize:8, color:"#475569", marginBottom:1 }}>{label}</div>
+                        <div style={{ fontSize:10, fontWeight:700, color:c }}>{val}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Hourly bars */}
+                  <div style={{ padding:"8px 12px" }}>
+                    <div style={{ display:"flex", gap:3, alignItems:"flex-end", height:50, marginBottom:6 }}>
+                      {hours.map(hr => {
+                        const w = rd.hourly[hr];
+                        const pct = Math.round((w/peak)*100);
+                        const label = hr > 12 ? `${hr-12}p` : hr===12 ? "12p" : `${hr}a`;
+                        return (
+                          <div key={hr} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}>
+                            <div style={{ width:"100%", height:`${pct}%`, minHeight:3, background:WAIT_COLOR(w), borderRadius:"2px 2px 0 0", opacity:0.85 }}/>
+                            <div style={{ fontSize:7, color:"#334155", transform:"rotate(-45deg)", transformOrigin:"center", marginTop:2 }}>{label}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div style={{ fontSize:10, color:"#64748b", lineHeight:1.5, marginTop:8, fontStyle:"italic" }}>💡 {rd.tip}</div>
+                  </div>
                 </div>
               );
-            })()}
+            })}
           </div>
         )}
 
-        {/* ── RIDES ── */}
+        {/* ── RIDES ── */}        {/* ── RIDES ── */}
         {tab==="planner" && (
           <div>
             <div style={{ display:"flex", gap:7, marginBottom:11 }}>
