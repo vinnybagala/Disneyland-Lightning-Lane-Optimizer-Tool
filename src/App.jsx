@@ -2,8 +2,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 const PARK_IDS = {
-  DL:  "83cceffa-2120-4b1e-a90e-486e1d09b07e",
-  DCA: "47f90d2c-e191-4239-a466-5892ef59a88b",
+  DL:  "16",
+  DCA: "17",
 };
 const POLL_INTERVAL   = 5 * 60 * 1000;
 const MAX_MEM_HISTORY = 48;
@@ -117,12 +117,13 @@ const toBase64 = (file) => new Promise((res, rej) => {
 // ─── Park API ─────────────────────────────────────────────────────────────────
 async function fetchWaits(parkId) {
   try {
-    const res = await fetch(`https://api.themeparks.wiki/v1/entity/${parkId}/live`, { headers:{ Accept:"application/json" }});
+    const res = await fetch(`https://queue-times.com/parks/${parkId}/queue_times.json`);
     if (!res.ok) throw new Error();
     const data = await res.json();
-    return (data.liveData||[])
-      .filter(e => e.entityType==="ATTRACTION" && e.queue?.STANDBY?.waitTime != null)
-      .map(e => ({ id:e.id, name:e.name, wait:e.queue.STANDBY.waitTime, status:e.status }))
+    const rides = (data.lands||[]).flatMap(land => land.rides||[]);
+    return rides
+      .filter(r => r.is_open && r.wait_time != null)
+      .map(r => ({ id: String(r.id), name: r.name, wait: r.wait_time, status: r.is_open ? "OPERATING" : "CLOSED" }))
       .sort((a,b) => b.wait - a.wait);
   } catch { return null; }
 }
