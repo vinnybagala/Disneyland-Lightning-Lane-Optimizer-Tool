@@ -588,15 +588,19 @@ CLOSED: Pirates of the Caribbean, Buzz Lightyear — never recommend.`;
       }
       const res = await fetch("/api/ai", {
         method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:1000, system:AI_SYSTEM, messages:[{role:"user",content}] }),
+        body: JSON.stringify({ model:"claude-sonnet-4-5", max_tokens:1000, system:AI_SYSTEM, messages:[{role:"user",content}] }),
       });
-      const data = await res.json();
+      const raw = await res.text();
+      console.log("AI raw response:", raw.slice(0,500));
+      let data;
+      try { data = JSON.parse(raw); } catch(e) { setAiResult("Parse error: " + raw.slice(0,200)); setAiLoading(false); return; }
       if (data.error) {
-        setAiResult("API Error: " + JSON.stringify(data.error));
-      } else if (data.content) {
-        setAiResult(data.content.map(b=>b.text||"").join("") || "No response.");
+        setAiResult("API Error: " + (data.error.message || JSON.stringify(data.error)));
+      } else if (data.content && data.content.length > 0) {
+        const text = data.content.filter(b=>b.type==="text").map(b=>b.text).join("");
+        setAiResult(text || "Empty content block. Raw: " + JSON.stringify(data.content).slice(0,200));
       } else {
-        setAiResult("Unexpected response: " + JSON.stringify(data).slice(0,200));
+        setAiResult("No content in response. Keys: " + Object.keys(data).join(", ") + " | " + raw.slice(0,300));
       }
     } catch { setAiResult("Error. Please try again."); }
     setAiLoading(false);
