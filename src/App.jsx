@@ -414,6 +414,8 @@ const [favorites, setFavorites] = useState(() => { try { const s = localStorage.
   const [screenshot, setScreenshot] = useState(null);
   const [screenshotPreview, setScreenshotPreview] = useState(null);
   const [aiResult, setAiResult]     = useState(null);
+  const [chatHistory, setChatHistory] = useState([]);
+  const [chatInput, setChatInput]   = useState("");
   const [aiLoading, setAiLoading]   = useState(false);
   const [strategy, setStrategy]     = useState("elite");
   const [expandedTip, setExpandedTip] = useState(null);
@@ -553,34 +555,10 @@ const [favorites, setFavorites] = useState(() => { try { const s = localStorage.
         ? "DAY 1: Starting at Disneyland, hopping to DCA. Cannot enter DCA until 11am. No early entry."
         : "DAY 2: Starting at DCA, hopping to DL. No park hop time restriction. No early entry.";
 
-      const userText = `${dayContext}
-Strategy: ${stratLabel}
-Poll count: ${pollCount} (${Math.round(pollCount*5/60*10)/10}hr of data)
-Yesterday's data available: ${hasYesterday ? "YES — use for comparison" : "NO"}
-
-MY PRIORITY RIDES (ranked by preference):
-${favList||"(none set)"}
-
-CURRENT LIVE WAIT TIMES:
-${allWaits||"(not loaded)"}
-
-TREND DATA (today vs yesterday):
-${trendSummary}
-
-Give me:
-1. What LL return times I'm holding (from screenshot if attached)
-2. What to book with LL RIGHT NOW and why
-3. What to ride standby right now (≤30min, stable/falling trend)
-4. What NOT to use LL on right now
-5. Optimal sequence for next 3-4 hours
-6. How today compares to yesterday at this time (if yesterday data available)
-7. Any rising trend alerts — act now before it spikes
-8. Stacking or SEP opportunities
-
-NEXT ACTION: (one clear thing to do right now)
-
-CLOSED: Pirates of the Caribbean, Buzz Lightyear — never recommend.`;
-
+      const nowTime = new Date().toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit', hour12:true, timeZone:'America/Los_Angeles'});
+      const chatCtx = chatHistory.length > 0 ? "\nCONVERSATION HISTORY:\n" + chatHistory.map(m=>(m.role==="user"?"Me: ":"AI: ")+m.text).join("\n") + "\n" : "";
+      const followUp = chatInput.trim() ? "\nUSER FOLLOW-UP: " + chatInput.trim() : "";
+      const userText = "CURRENT TIME (Anaheim CA): " + nowTime + "\n" + dayContext + "\nStrategy: " + stratLabel + "\nPolls: " + pollCount + " (" + Math.round(pollCount*5/60*10)/10 + "hr)\nYesterday: " + (hasYesterday?"YES":"NO") + chatCtx + "\nMY PRIORITY RIDES:\n" + (favList||"(none set)") + "\n\nLIVE WAIT TIMES at " + nowTime + ":\n" + (allWaits||"(not loaded — use historical baselines)") + "\n\nTREND DATA:\n" + trendSummary + followUp + "\n\nGive me:\n1. LL return times I'm holding (from screenshot)\n2. What to book with LL RIGHT NOW (it is " + nowTime + ")\n3. What to ride standby right now (under 30min)\n4. What NOT to use LL on\n5. Optimal sequence next 3-4 hours\n6. Rising trend alerts\n7. Stacking or SEP opportunities\n\nNEXT ACTION: one clear thing to do right now\n\nCLOSED: Pirates of the Caribbean, Buzz Lightyear.";
       const content = [{ type:"text", text:userText }];
       if (screenshot) {
         const b64 = await toBase64(screenshot);
@@ -588,7 +566,10 @@ CLOSED: Pirates of the Caribbean, Buzz Lightyear — never recommend.`;
       }
       const res = await fetch("/api/ai", {
         method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ model:"claude-sonnet-4-5", max_tokens:1000, system:AI_SYSTEM, messages:[{role:"user",content}] }),
+        body: JSON.stringify({ model:"claude-sonnet-4-5", max_tokens:1000, system:AI_SYSTEM, messages:[
+          ...chatHistory.map(m => ({ role:m.role, content:m.text })),
+          {role:"user", content}
+        ] }),
       });
       const raw = await res.text();
       console.log("AI raw response:", raw.slice(0,500));
@@ -598,7 +579,8 @@ CLOSED: Pirates of the Caribbean, Buzz Lightyear — never recommend.`;
         setAiResult("API Error: " + (data.error.message || JSON.stringify(data.error)));
       } else if (data.content && data.content.length > 0) {
         const text = data.content.filter(b=>b.type==="text").map(b=>b.text).join("");
-        setAiResult(text || "Empty content block. Raw: " + JSON.stringify(data.content).slice(0,200));
+        setAiResult(text || "Empty content block.");
+        setChatHistory(prev => [...prev, {role:"assistant", text: text||""}]);
       } else {
         setAiResult("No content in response. Keys: " + Object.keys(data).join(", ") + " | " + raw.slice(0,300));
       }
@@ -1001,15 +983,46 @@ CLOSED: Pirates of the Caribbean, Buzz Lightyear — never recommend.`;
             </button>
 
             {aiResult && (
-              <div style={{ background:"#0e1628", borderRadius:8, border:"1px solid rgba(250,204,21,0.13)", overflow:"hidden" }}>
+              <div style={{ background:"#0e1628", borderRadius:8, border:"1px solid rgba(250,204,21,0.13)", overflow:"hidden", marginBottom:10 }}>
                 <div style={{ padding:"8px 12px", borderBottom:"1px solid rgba(255,255,255,0.05)", display:"flex", alignItems:"center", gap:6 }}>
                   <span style={{ fontSize:14 }}>🧠</span>
                   <span style={{ fontWeight:700, fontSize:12, color:"#facc15" }}>AI RECOMMENDATION</span>
-                  <span style={{ fontSize:9, color:"#475569", marginLeft:"auto" }}>
-                    Day {tripDay} · {Math.round(pollCount*5/60*10)/10}hr data{hasYesterday?" · +yesterday":""}
-                  </span>
+                  <span style={{ fontSize:9, color:"#475569", marginLeft:"auto" }}>Day {tripDay} · {Math.round(pollCount*5/60*10)/10}hr data</span>
                 </div>
                 <div style={{ padding:12, fontSize:12, lineHeight:1.75, color:"#94a3b8", whiteSpace:"pre-wrap" }}>{aiResult}</div>
+              </div>
+            )}
+
+            {/* Chat input */}
+            {aiResult && (
+              <div style={{ background:"#0e1628", borderRadius:8, border:"1px solid rgba(255,255,255,0.06)", overflow:"hidden" }}>
+                <div style={{ padding:"8px 12px", borderBottom:"1px solid rgba(255,255,255,0.05)", fontSize:11, fontWeight:700, color:"#94a3b8" }}>💬 FOLLOW UP</div>
+                <div style={{ padding:10, display:"flex", gap:8 }}>
+                  <input
+                    value={chatInput}
+                    onChange={e=>setChatInput(e.target.value)}
+                    onKeyDown={e=>{ if(e.key==="Enter" && chatInput.trim()) {
+                      setChatHistory(prev=>[...prev,{role:"user",text:chatInput}]);
+                      setChatInput("");
+                      runAnalysis();
+                    }}}
+                    placeholder="Just rode Space Mountain. What's next?"
+                    style={{ flex:1, background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:6, padding:"8px 10px", color:"#e8eaf0", fontSize:12, fontFamily:"'DM Sans',sans-serif", outline:"none" }}
+                  />
+                  <button onClick={()=>{
+                    if(!chatInput.trim()) return;
+                    setChatHistory(prev=>[...prev,{role:"user",text:chatInput}]);
+                    setChatInput("");
+                    runAnalysis();
+                  }} style={{ background:"rgba(250,204,21,0.15)", border:"1px solid rgba(250,204,21,0.3)", color:"#facc15", borderRadius:6, padding:"8px 14px", cursor:"pointer", fontSize:12, fontWeight:700, fontFamily:"'DM Sans',sans-serif" }}>
+                    Send
+                  </button>
+                </div>
+                {chatHistory.length > 2 && (
+                  <div style={{ padding:"0 10px 8px" }}>
+                    <button onClick={()=>{setChatHistory([]);setAiResult(null);}} style={{ fontSize:10, color:"#475569", background:"none", border:"none", cursor:"pointer" }}>Clear conversation</button>
+                  </div>
+                )}
               </div>
             )}
           </div>
