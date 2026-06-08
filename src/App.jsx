@@ -225,7 +225,7 @@ const toBase64 = (file) => new Promise((res, rej) => {
 // ─── Park API ─────────────────────────────────────────────────────────────────
 async function fetchWaits(parkId) {
   try {
-    const res = await fetch(`https://queue-times.com/parks/${parkId}/queue_times.json`);
+    const res = await fetch(`/api/waits?park=${parkId}`);
     if (!res.ok) throw new Error();
     const data = await res.json();
     const rides = (data.lands||[]).flatMap(land => land.rides||[]);
