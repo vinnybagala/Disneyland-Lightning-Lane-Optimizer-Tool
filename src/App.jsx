@@ -511,7 +511,7 @@ CLOSED: Pirates of the Caribbean, Buzz Lightyear — never recommend.`;
         </div>
 
         <div style={{ display:"flex", marginBottom:"-1px" }}>
-          {[["waits","📊","Waits"],["planner","🎢","Rides"],["tips","💡","Guide"],["optimizer","🧠","AI"]].map(([key,icon,label])=>(
+          {[["waits","📊","Waits"],["data","📈","Data"],["planner","🎢","Rides"],["tips","💡","Guide"],["optimizer","🧠","AI"]].map(([key,icon,label])=>(
             <button key={key} onClick={()=>setTab(key)} style={{ flex:1, padding:"7px 0", border:"none", cursor:"pointer", background:"transparent", fontFamily:"'DM Sans',sans-serif", fontSize:11, fontWeight:tab===key?700:400, color:tab===key?"#facc15":"#475569", borderBottom:`2px solid ${tab===key?"#facc15":"transparent"}`, transition:"all 0.15s" }}>
               {icon} {label}
             </button>
@@ -564,23 +564,27 @@ CLOSED: Pirates of the Caribbean, Buzz Lightyear — never recommend.`;
                 <div style={{ padding:"8px 12px", borderBottom:"1px solid rgba(255,255,255,0.05)", fontWeight:700, fontSize:12, color:accent }}>{label}</div>
                 {!waits ? (
                   <div style={{ padding:18, textAlign:"center", color:"#334155", fontSize:11 }}>{polling?"Loading first poll…":"Tap Start Tracking"}</div>
-                ) : waits.slice(0,16).map(ride => {
-                  const isFav   = favNames.has(ride.name);
-                  const meta    = getRideMeta(ride.name);
-                  const rHist   = history[ride.name]?.map(s=>s.wait);
-                  const rYest   = yesterday[ride.name]?.map(s=>s.wait);
-                  const isClosed = ride.name.includes("Buzz Lightyear")||ride.name.includes("Pirates");
-                  return (
-                    <div key={ride.id} style={{ display:"flex", alignItems:"center", padding:"6px 12px", borderBottom:"1px solid rgba(255,255,255,0.03)", gap:6, opacity:isClosed?0.3:1 }}>
-                      {isFav && <span style={{ fontSize:8, flexShrink:0 }}>⭐</span>}
-                      <span style={{ flex:1, fontSize:11, color:isFav?"#dde4f0":"#94a3b8", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{ride.name}</span>
-                      {meta && <span style={{ fontSize:8, padding:"1px 4px", borderRadius:8, background:`${TIER_COLOR[meta.tier]}20`, color:TIER_COLOR[meta.tier], fontWeight:700, flexShrink:0 }}>{TIER_LABEL[meta.tier]}</span>}
-                      {rHist && rHist.length >= 2 && <Sparkline data={rHist.slice(-12)} yesterdayData={rYest?.slice(-12)} color={WAIT_COLOR(ride.wait)}/>}
-                      {ride.wait <= 30 && !isClosed && <span style={{ fontSize:8, color:"#4ade80", fontWeight:700, flexShrink:0 }}>WALK</span>}
-                      <span style={{ fontSize:11, fontWeight:700, color:WAIT_COLOR(ride.wait), minWidth:34, textAlign:"right", flexShrink:0 }}>{ride.wait}m</span>
-                    </div>
-                  );
-                })}
+                ) : (() => {
+                  const parkFavs = favorites.filter(f => f.park === pk);
+                  const filtered = parkFavs.map(fav => waits.find(w => w.name === fav.name)).filter(Boolean);
+                  if (filtered.length === 0) return <div style={{ padding:18, textAlign:"center", color:"#334155", fontSize:11 }}>No priority rides found in live data</div>;
+                  return filtered.map(ride => {
+                    const meta    = getRideMeta(ride.name);
+                    const rHist   = history[ride.name]?.map(s=>s.wait);
+                    const rYest   = yesterday[ride.name]?.map(s=>s.wait);
+                    const isClosed = ride.name.includes("Buzz Lightyear")||ride.name.includes("Pirates");
+                    return (
+                      <div key={ride.id} style={{ display:"flex", alignItems:"center", padding:"6px 12px", borderBottom:"1px solid rgba(255,255,255,0.03)", gap:6, opacity:isClosed?0.3:1 }}>
+                        <span style={{ fontSize:8, flexShrink:0 }}>⭐</span>
+                        <span style={{ flex:1, fontSize:11, color:"#dde4f0", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{ride.name}</span>
+                        {meta && <span style={{ fontSize:8, padding:"1px 4px", borderRadius:8, background:`${TIER_COLOR[meta.tier]}20`, color:TIER_COLOR[meta.tier], fontWeight:700, flexShrink:0 }}>{TIER_LABEL[meta.tier]}</span>}
+                        {rHist && rHist.length >= 2 && <Sparkline data={rHist.slice(-12)} yesterdayData={rYest?.slice(-12)} color={WAIT_COLOR(ride.wait)}/>}
+                        {ride.wait <= 30 && !isClosed && <span style={{ fontSize:8, color:"#4ade80", fontWeight:700, flexShrink:0 }}>WALK</span>}
+                        <span style={{ fontSize:11, fontWeight:700, color:WAIT_COLOR(ride.wait), minWidth:34, textAlign:"right", flexShrink:0 }}>{ride.wait}m</span>
+                      </div>
+                    );
+                  });
+                })()}
               </div>
             ))}
 
@@ -590,6 +594,94 @@ CLOSED: Pirates of the Caribbean, Buzz Lightyear — never recommend.`;
               ))}
               {hasYesterday && <span>· - - - yesterday</span>}
             </div>
+          </div>
+        )}
+
+        {/* ── DATA TAB ── */}
+        {tab==="data" && (
+          <div>
+            <div style={{ background:"rgba(250,204,21,0.04)", border:"1px solid rgba(250,204,21,0.1)", borderRadius:8, padding:"9px 12px", marginBottom:11, fontSize:11, color:"#a16207", lineHeight:1.5 }}>
+              📈 Wait time history collected today — one row per hour, one column per priority ride. Updates every 5 min while tracking.
+            </div>
+            {Object.keys(history).length === 0 ? (
+              <div style={{ padding:32, textAlign:"center", color:"#334155", fontSize:12 }}>No data collected yet — tap ▶ START TRACKING on the Waits tab</div>
+            ) : (() => {
+              // Build hourly averages from history
+              const hourlyData = {};
+              for (const [rideName, snaps] of Object.entries(history)) {
+                if (!favorites.find(f => f.name === rideName)) continue;
+                for (const snap of snaps) {
+                  const hour = new Date(snap.time).getHours();
+                  const key = hour;
+                  if (!hourlyData[key]) hourlyData[key] = {};
+                  if (!hourlyData[key][rideName]) hourlyData[key][rideName] = [];
+                  hourlyData[key][rideName].push(snap.wait);
+                }
+              }
+              const hours = Object.keys(hourlyData).map(Number).sort((a,b)=>a-b);
+              const rideNames = favorites.map(f => f.name).filter(n => Object.values(hourlyData).some(h => h[n]));
+              if (hours.length === 0) return <div style={{ padding:32, textAlign:"center", color:"#334155", fontSize:12 }}>Collecting data... check back in a few minutes</div>;
+              return (
+                <div>
+                  {/* Summary cards for each priority ride */}
+                  {rideNames.map(rideName => {
+                    const meta = getRideMeta(rideName);
+                    const allSnaps = history[rideName] || [];
+                    if (allSnaps.length < 2) return null;
+                    const waits = allSnaps.map(s => s.wait);
+                    const current = waits[waits.length-1];
+                    const peak = Math.max(...waits);
+                    const peakSnap = allSnaps[waits.indexOf(peak)];
+                    const peakHour = new Date(peakSnap.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                    const min = Math.min(...waits);
+                    const avg = Math.round(waits.reduce((a,b)=>a+b,0)/waits.length);
+                    const rHist = waits;
+                    const walkable = waits.filter(w => w <= 30).length;
+                    const walkPct = Math.round(walkable/waits.length*100);
+                    return (
+                      <div key={rideName} style={{ background:"#0e1628", borderRadius:9, border:"1px solid rgba(255,255,255,0.05)", marginBottom:9, overflow:"hidden" }}>
+                        <div style={{ padding:"8px 12px", borderBottom:"1px solid rgba(255,255,255,0.05)", display:"flex", alignItems:"center", gap:7 }}>
+                          <div style={{ flex:1 }}>
+                            <div style={{ fontSize:12, fontWeight:700, color:"#dde4f0" }}>{rideName}</div>
+                            {meta && <span style={{ fontSize:8, padding:"1px 5px", borderRadius:8, background:`${TIER_COLOR[meta.tier]}20`, color:TIER_COLOR[meta.tier], fontWeight:700 }}>{TIER_LABEL[meta.tier]}</span>}
+                          </div>
+                          <span style={{ fontSize:13, fontWeight:700, color:WAIT_COLOR(current) }}>{current}m now</span>
+                        </div>
+                        <div style={{ padding:"8px 12px" }}>
+                          <div style={{ display:"flex", gap:8, marginBottom:8 }}>
+                            {[["Peak",`${peak}m @ ${peakHour}`,"#f87171"],["Low",`${min}m`,"#4ade80"],["Avg",`${avg}m`,"#facc15"],["Walkable",`${walkPct}%`,"#60a5fa"]].map(([label,val,c])=>(
+                              <div key={label} style={{ flex:1, background:"rgba(255,255,255,0.03)", borderRadius:6, padding:"5px 7px", textAlign:"center" }}>
+                                <div style={{ fontSize:8, color:"#475569", marginBottom:2 }}>{label}</div>
+                                <div style={{ fontSize:11, fontWeight:700, color:c }}>{val}</div>
+                              </div>
+                            ))}
+                          </div>
+                          {/* Full sparkline */}
+                          <div style={{ background:"rgba(255,255,255,0.02)", borderRadius:6, padding:"8px 10px" }}>
+                            <Sparkline data={rHist} color={WAIT_COLOR(current)} width={320} height={40}/>
+                          </div>
+                          {/* Hourly breakdown */}
+                          <div style={{ display:"flex", gap:4, marginTop:7, flexWrap:"wrap" }}>
+                            {hours.map(hr => {
+                              const vals = hourlyData[hr]?.[rideName];
+                              if (!vals) return null;
+                              const avg = Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
+                              const label = hr >= 12 ? `${hr===12?12:hr-12}pm` : `${hr===0?12:hr}am`;
+                              return (
+                                <div key={hr} style={{ background:`${WAIT_COLOR(avg)}15`, border:`1px solid ${WAIT_COLOR(avg)}40`, borderRadius:5, padding:"3px 7px", textAlign:"center" }}>
+                                  <div style={{ fontSize:8, color:"#475569" }}>{label}</div>
+                                  <div style={{ fontSize:11, fontWeight:700, color:WAIT_COLOR(avg) }}>{avg}m</div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </div>
         )}
 
