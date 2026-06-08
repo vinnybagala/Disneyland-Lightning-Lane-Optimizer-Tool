@@ -9,43 +9,42 @@ const POLL_INTERVAL   = 5 * 60 * 1000;
 const MAX_MEM_HISTORY = 48;
 const SUPABASE_URL    = "https://ntxuavikjwxesndffsgq.supabase.co";
 const SUPABASE_KEY    = "sb_publishable_CgX9cKbkp_r3KcIpKa5GZg_-LK9BbrY";
+const SB_HEADERS = {
+  "apikey": SUPABASE_KEY,
+  "Authorization": `Bearer ${SUPABASE_KEY}`,
+  "Content-Type": "application/json",
+};
 
 // ─── Supabase helpers ─────────────────────────────────────────────────────────
 async function dbInsertSnapshots(snapshots) {
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/wait_time_snapshots`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/wait_time_snapshots`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": SUPABASE_KEY,
-        "Authorization": `Bearer ${SUPABASE_KEY}`,
-        "Prefer": "return=minimal",
-      },
+      headers: { ...SB_HEADERS, "Prefer": "return=minimal" },
       body: JSON.stringify(snapshots),
     });
+    if (!res.ok) console.warn("DB insert error", res.status, await res.text());
   } catch (e) { console.warn("DB insert failed", e); }
 }
 
 async function dbLoadHistory(tripDay) {
   try {
     const since = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/wait_time_snapshots?trip_day=eq.${tripDay}&snapshot_time=gte.${since}&order=snapshot_time.asc&limit=2000`,
-      { headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` } }
-    );
+    const url = `${SUPABASE_URL}/rest/v1/wait_time_snapshots?trip_day=eq.${tripDay}&snapshot_time=gte.${encodeURIComponent(since)}&order=snapshot_time.asc&limit=2000`;
+    const res = await fetch(url, { headers: SB_HEADERS });
+    if (!res.ok) { console.warn("dbLoadHistory error", res.status, await res.text()); return []; }
     return await res.json();
-  } catch { return []; }
+  } catch(e) { console.warn("dbLoadHistory catch", e); return []; }
 }
 
 async function dbLoadYesterday(tripDay) {
   if (tripDay === 1) return [];
   try {
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/wait_time_snapshots?trip_day=eq.${tripDay - 1}&order=snapshot_time.asc&limit=2000`,
-      { headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` } }
-    );
+    const url = `${SUPABASE_URL}/rest/v1/wait_time_snapshots?trip_day=eq.${tripDay - 1}&order=snapshot_time.asc&limit=2000`;
+    const res = await fetch(url, { headers: SB_HEADERS });
+    if (!res.ok) { console.warn("dbLoadYesterday error", res.status); return []; }
     return await res.json();
-  } catch { return []; }
+  } catch(e) { console.warn("dbLoadYesterday catch", e); return []; }
 }
 
 // ─── Ride Data ────────────────────────────────────────────────────────────────
