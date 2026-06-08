@@ -591,7 +591,13 @@ CLOSED: Pirates of the Caribbean, Buzz Lightyear — never recommend.`;
         body: JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:1000, system:AI_SYSTEM, messages:[{role:"user",content}] }),
       });
       const data = await res.json();
-      setAiResult(data.content?.map(b=>b.text||"").join("")||"No response.");
+      if (data.error) {
+        setAiResult("API Error: " + JSON.stringify(data.error));
+      } else if (data.content) {
+        setAiResult(data.content.map(b=>b.text||"").join("") || "No response.");
+      } else {
+        setAiResult("Unexpected response: " + JSON.stringify(data).slice(0,200));
+      }
     } catch { setAiResult("Error. Please try again."); }
     setAiLoading(false);
   };
