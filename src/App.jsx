@@ -162,6 +162,47 @@ DAY 2 (Start DCA, hop to DL): No park hop time restriction. Start with Radiator 
 
 OPTIMIZATION FORMULA: Score = (Preference Rank × 0.5) + (Wait Time Savings × 0.3) + (Proximity Score × 0.2). Highest score = next recommended ride.
 
+HISTORICAL WAIT TIME BASELINES (Thrill Data, Disneyland Anaheim, June 2026 typical patterns):
+
+DISNEYLAND PARK wait time arc:
+8:00am: 7-10min (rope drop, lowest of day, walk on almost everything)
+9:00am: 14-16min (still manageable, book first LL immediately on scan-in)
+10:00am: 21-23min (rising fast, Tier 1 LL selling out now)
+11:00am: 28-30min (peak approaching, standby under 30min disappearing)
+12:00pm-3:00pm: 30-35min park average PEAK (Indiana Jones and Space Mountain hitting 75-100min standby)
+4:00pm-5:00pm: 29-30min (still busy)
+6:00pm-8:00pm: 26-28min (evening drop, good for Tier 2 standby)
+
+KEY DL RIDE PATTERNS:
+Indiana Jones: walkable before 9:30am (~20min), 60min by 11am, peaks 80-100min 1pm-4pm
+Space Mountain: walkable before 9:30am, 55min by 11am, peaks 75-90min 1pm-4pm
+Mickey and Minnies Railway: 45-70min all day, book LL first thing
+Matterhorn: 25min rope drop, 50-65min by noon, 70min peak afternoon
+Big Thunder Mountain: 20min morning, 40-55min midday, manageable evening
+Haunted Mansion: 20-30min most of day, spikes 45-55min peak hours
+Tianas Bayou Adventure: 35-50min most of day, peaks 65-80min afternoon
+Rise of the Resistance: 45-75min all day, ride at rope drop or Single Pass only
+Jungle Cruise: 20min morning, 35-50min midday
+Smugglers Run: 25-40min most of day, rarely over 60min
+
+KEY DCA RIDE PATTERNS:
+Radiator Springs Racers: 45-75min by 9am, peaks 90-120min midday, MUST ride rope drop or Single Pass
+Guardians BREAKOUT: 35-55min morning, peaks 70-95min afternoon
+Toy Story Mania: 30-45min morning, peaks 60-80min afternoon
+Incredicoaster: 20-35min morning, 45-65min afternoon
+Soarin Around the World: 20-30min morning, 40-60min afternoon
+Goofys Sky School: 15-25min morning, 30-45min afternoon
+Web Slingers: 20-35min most of day
+Grizzly River Run: spikes in afternoon heat, Tier 2 level in summer
+
+CRITICAL TIMING INTELLIGENCE:
+Indiana Jones, Space Mountain, Mickey Railway LL SELLS OUT by 11am-12pm on busy days
+Guardians and Toy Story LL sell out by 1pm-2pm
+BEST standby window: 8am-9:30am for ALL rides
+WORST standby time: 12pm-4pm, use LL stack instead
+Evening drop: 6pm-8pm waits fall 15-20%, good for Tier 2 standby
+Day 1 park hop sweet spot: leave DL around 1pm-2pm when DL peaks, arrive DCA with LL stack already booked
+
 STANDBY RULE: Standby ≤30 min = walk on, save LL slot.
 
 TREND ANALYSIS: Use historical data to identify rising/falling trends, predict peaks, spot SEP opportunities from sudden drops.
